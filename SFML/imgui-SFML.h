@@ -96,18 +96,18 @@ namespace ImGui
             ImImpl::ImImpl_timeElapsed.restart();
         }
 
-        static void UpdateImGui(sf::Window &window)
+        static void UpdateImGui()
         {
             ImGuiIO& io = ImGui::GetIO();
             int w, h;
-            sf::Vector2u size = window.getSize();
+            sf::Vector2u size = ImImpl::ImImpl_window->getSize();
             w=size.x; h=size.y;
             io.DisplaySize = ImVec2((float)w, (float)h);
             static double time = 0.0f;
             const double current_time = ImImpl::ImImpl_timeElapsed.getElapsedTime().asSeconds();
             io.DeltaTime = (float)(current_time - time);
             time = current_time;
-            sf::Vector2i mouse = sf::Mouse::getPosition(window);
+            sf::Vector2i mouse = sf::Mouse::getPosition(*ImImpl::ImImpl_window);
             io.MousePos = ImVec2((float)mouse.x, (float)mouse.y);
             io.MouseDown[0] = ImImpl::ImImpl_mousePressed[0] || sf::Mouse::isButtonPressed(sf::Mouse::Left);
             io.MouseDown[1] = ImImpl::ImImpl_mousePressed[1] || sf::Mouse::isButtonPressed(sf::Mouse::Right);
