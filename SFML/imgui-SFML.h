@@ -1,3 +1,5 @@
+#ifndef IMGUI_SFML_BACKEND
+#define IMGUI_SFML_BACKEND
 #include <vector>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
@@ -67,7 +69,6 @@ namespace ImGui
         static void InitImGui()
         {
             ImGuiIO& io = ImGui::GetIO();
-            io.PixelCenterOffset = 0.0f;
             io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Tab;
             io.KeyMap[ImGuiKey_LeftArrow] = sf::Keyboard::Left;
             io.KeyMap[ImGuiKey_RightArrow] = sf::Keyboard::Right;
@@ -89,10 +90,13 @@ namespace ImGui
             io.RenderDrawListsFn = ImImpl::ImImpl_RenderDrawLists;
 
             // Load font texture
-            const void* png_data;
-            unsigned int png_size;
-            ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
-            ImImpl::ImImpl_fontTex.loadFromMemory(png_data, png_size);
+            unsigned char* pixels;
+            int width, height;
+            ImFont* font = io.Fonts->AddFontDefault();
+            io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+            ImImpl::ImImpl_fontTex.create(width, height);
+            ImImpl::ImImpl_fontTex.update(pixels);
+            io.Fonts->TexID = (void*)&ImImpl::ImImpl_fontTex;
             ImImpl::ImImpl_timeElapsed.restart();
         }
 
@@ -122,7 +126,7 @@ namespace ImGui
             if (cmd_lists_count == 0)
                 return;
 
-            sf::RenderStates states(&ImImpl::ImImpl_fontTex);
+            sf::RenderStates states;
             states.blendMode = sf::BlendMode(sf::BlendMode::SrcAlpha, sf::BlendMode::OneMinusSrcAlpha);
 
             for (int n = 0; n < cmd_lists_count; n++)
@@ -141,6 +145,7 @@ namespace ImGui
                 for (size_t cmd_i = 0; cmd_i < cmd_list->commands.size(); cmd_i++)
                 {
                     const ImDrawCmd* pcmd = &cmd_list->commands.at(cmd_i);
+                    states.texture = (sf::Texture*)pcmd->texture_id;
                     ImImpl::ImImpl_window->draw(&vtx_buffer[vtx_offset], pcmd->vtx_count, sf::Triangles, states);
                     vtx_offset += pcmd->vtx_count;
                 }
@@ -148,3 +153,4 @@ namespace ImGui
         }
     }
 }
+#endif
