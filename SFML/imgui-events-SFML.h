@@ -3,9 +3,7 @@
 #include <vector>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Vertex.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Window.hpp>
 
 namespace ImGui
 {
@@ -13,13 +11,11 @@ namespace ImGui
     {
         static sf::Clock ImImpl_timeElapsed;
         static bool ImImpl_mousePressed[2] = { false, false };
-        static sf::RenderWindow* ImImpl_window;
-        static sf::Texture ImImpl_fontTex;
-        static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count);
+        static sf::Window* ImImpl_window;
     }
     namespace SFML
     {
-        static void SetWindow(sf::RenderWindow& window){ImImpl::ImImpl_window=&window;}
+        static void SetWindow(sf::Window& window){ImImpl::ImImpl_window=&window;}
         static void ProcessEvent(sf::Event &event)
         {
             switch(event.type)
@@ -66,7 +62,7 @@ namespace ImGui
             }
         }
 
-        static void InitImGui()
+        static void InitImGuiEvents()
         {
             ImGuiIO& io = ImGui::GetIO();
             io.KeyMap[ImGuiKey_Tab] = sf::Keyboard::Tab;
@@ -86,17 +82,6 @@ namespace ImGui
             io.KeyMap[ImGuiKey_X] = sf::Keyboard::X;
             io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
             io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
-
-            io.RenderDrawListsFn = ImImpl::ImImpl_RenderDrawLists;
-
-            // Load font texture
-            unsigned char* pixels;
-            int width, height;
-            ImFont* font = io.Fonts->AddFontDefault();
-            io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-            ImImpl::ImImpl_fontTex.create(width, height);
-            ImImpl::ImImpl_fontTex.update(pixels);
-            io.Fonts->TexID = (void*)&ImImpl::ImImpl_fontTex;
             ImImpl::ImImpl_timeElapsed.restart();
         }
 
@@ -116,40 +101,6 @@ namespace ImGui
             io.MouseDown[0] = ImImpl::ImImpl_mousePressed[0] || sf::Mouse::isButtonPressed(sf::Mouse::Left);
             io.MouseDown[1] = ImImpl::ImImpl_mousePressed[1] || sf::Mouse::isButtonPressed(sf::Mouse::Right);
             ImGui::NewFrame();
-        }
-    }
-
-    namespace ImImpl
-    {
-        static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
-        {
-            if (cmd_lists_count == 0)
-                return;
-
-            sf::RenderStates states;
-            states.blendMode = sf::BlendMode(sf::BlendMode::SrcAlpha, sf::BlendMode::OneMinusSrcAlpha);
-
-            for (int n = 0; n < cmd_lists_count; n++)
-            {
-                const ImDrawList* cmd_list = cmd_lists[n];
-                const unsigned char* vtx_buffer_ = (const unsigned char*)(&(cmd_list->vtx_buffer.front()));
-                sf::Vertex* vtx_buffer = (sf::Vertex*)vtx_buffer_;
-                int i=cmd_list->vtx_buffer.size()-1;
-                while(i>=0)
-                {
-                    vtx_buffer[i].texCoords.x*=ImImpl::ImImpl_fontTex.getSize().x;
-                    vtx_buffer[i].texCoords.y*=ImImpl::ImImpl_fontTex.getSize().y;
-                    --i;
-                }
-                int vtx_offset = 0;
-                for (size_t cmd_i = 0; cmd_i < cmd_list->commands.size(); cmd_i++)
-                {
-                    const ImDrawCmd* pcmd = &cmd_list->commands.at(cmd_i);
-                    states.texture = (sf::Texture*)pcmd->texture_id;
-                    ImImpl::ImImpl_window->draw(&vtx_buffer[vtx_offset], pcmd->vtx_count, sf::Triangles, states);
-                    vtx_offset += pcmd->vtx_count;
-                }
-            }
         }
     }
 }
