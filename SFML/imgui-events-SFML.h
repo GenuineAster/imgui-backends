@@ -1,5 +1,5 @@
-#ifndef IMGUI_SFML_BACKEND
-#define IMGUI_SFML_BACKEND
+#ifndef IMGUI_SFML_EVENTS_BACKEND
+#define IMGUI_SFML_EVENTS_BACKEND
 #include <vector>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
@@ -88,10 +88,6 @@ namespace ImGui
         static void UpdateImGui()
         {
             ImGuiIO& io = ImGui::GetIO();
-            int w, h;
-            sf::Vector2u size = ImImpl::ImImpl_window->getSize();
-            w=size.x; h=size.y;
-            io.DisplaySize = ImVec2((float)w, (float)h);
             static double time = 0.0f;
             const double current_time = ImImpl::ImImpl_timeElapsed.getElapsedTime().asSeconds();
             io.DeltaTime = (float)(current_time - time);

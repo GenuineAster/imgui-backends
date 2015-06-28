@@ -1,13 +1,15 @@
-#ifndef IMGUI_SFML_BACKEND
-#define IMGUI_SFML_BACKEND
+#ifndef IMGUI_SFML_RENDERING_BACKEND
+#define IMGUI_SFML_RENDERING_BACKEND
 #include <vector>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
-
+#include <iostream>
 namespace ImGui
 {
     namespace ImImpl
     {
         static sf::RenderTarget* ImImpl_rtarget;
+	static sf::Texture ImImpl_fontTex;	
         static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
         {
             if (cmd_lists_count == 0)
@@ -33,6 +35,7 @@ namespace ImGui
                 {
                     const ImDrawCmd* pcmd = &cmd_list->commands.at(cmd_i);
                     states.texture = (sf::Texture*)pcmd->texture_id;
+		    if(!states.texture) std::cout<<"Invalid texture!"<<std::endl;
                     ImImpl::ImImpl_rtarget->draw(&vtx_buffer[vtx_offset], pcmd->vtx_count, sf::Triangles, states);
                     vtx_offset += pcmd->vtx_count;
                 }
@@ -45,8 +48,22 @@ namespace ImGui
         static void InitImGuiRendering()
         {
             ImGuiIO& io = ImGui::GetIO();
+	    io.DisplaySize = ImVec2(ImImpl::ImImpl_rtarget->getSize().x, ImImpl::ImImpl_rtarget->getSize().y);
             io.RenderDrawListsFn = ImImpl::ImImpl_RenderDrawLists;
+	    unsigned char* pixels;
+	    int width, height;
+            io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+            ImImpl::ImImpl_fontTex.create(width, height);
+            ImImpl::ImImpl_fontTex.update(pixels);
+            io.Fonts->TexID = (void*)&ImImpl::ImImpl_fontTex;
+	    io.Fonts->ClearInputData();
+	    io.Fonts->ClearTexData();
         }
+        static void UpdateImGuiRendering()
+	{
+	    ImGuiIO& io = ImGui::GetIO();
+	    io.DisplaySize = ImVec2(ImImpl::ImImpl_rtarget->getSize().x, ImImpl::ImImpl_rtarget->getSize().y);
+	}
     }
 }
 #endif
