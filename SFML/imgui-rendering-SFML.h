@@ -5,12 +5,13 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <iostream>
+#include <memory>
 namespace ImGui
 {
     namespace ImImpl
     {
         static sf::RenderTarget* ImImpl_rtarget;
-        static sf::Texture ImImpl_fontTex;
+        static std::shared_ptr<sf::Texture> ImImpl_fontTex;
 
         static void ImImpl_RenderDrawLists(ImDrawData* draw_data)
         {
@@ -63,7 +64,7 @@ namespace ImGui
                     else
                     {
                         sf::Vector2u win_size = ImImpl_rtarget->getSize();
-                        sf::Texture::bind(&ImImpl::ImImpl_fontTex);
+                        sf::Texture::bind(ImImpl::ImImpl_fontTex.get());
                         glScissor((int)pcmd->ClipRect.x, (int)(win_size.y - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                         glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
                     }
@@ -97,8 +98,9 @@ namespace ImGui
             unsigned char* pixels;
             int width, height;
             io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-            ImImpl::ImImpl_fontTex.create(width, height);
-            ImImpl::ImImpl_fontTex.update(pixels);
+            ImImpl::ImImpl_fontTex = std::make_shared<sf::Texture>();
+            ImImpl::ImImpl_fontTex->create(width, height);
+            ImImpl::ImImpl_fontTex->update(pixels);
             io.Fonts->TexID = (void*)&ImImpl::ImImpl_fontTex;
             io.Fonts->ClearInputData();
             io.Fonts->ClearTexData();
