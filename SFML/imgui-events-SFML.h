@@ -10,7 +10,7 @@ namespace ImGui
     namespace ImImpl
     {
         static sf::Clock ImImpl_timeElapsed;
-        static bool ImImpl_mousePressed[2] = { false, false };
+        static bool ImImpl_mousePressed[5] = { false, false, false, false, false };
         static sf::Window* ImImpl_window;
     }
     namespace SFML
