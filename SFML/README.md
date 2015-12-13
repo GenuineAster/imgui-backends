@@ -50,6 +50,7 @@ int main() {
 		ImGui::Render();
 		win.display();
 	}
+	ImGui::SFML::Shutdown();
 }
 ```
 
