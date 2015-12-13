@@ -93,7 +93,7 @@ namespace ImGui
         static void InitImGuiRendering()
         {
             ImGuiIO& io = ImGui::GetIO();
-            io.DisplaySize = ImVec2(ImImpl::ImImpl_rtarget->getSize().x, ImImpl::ImImpl_rtarget->getSize().y);
+            io.DisplaySize = ImVec2(float(ImImpl::ImImpl_rtarget->getSize().x), float(ImImpl::ImImpl_rtarget->getSize().y));
             io.RenderDrawListsFn = ImImpl::ImImpl_RenderDrawLists;
             unsigned char* pixels;
             int width, height;
@@ -108,7 +108,7 @@ namespace ImGui
         static void UpdateImGuiRendering()
         {
                 ImGuiIO& io = ImGui::GetIO();
-                io.DisplaySize = ImVec2(ImImpl::ImImpl_rtarget->getSize().x, ImImpl::ImImpl_rtarget->getSize().y);
+                io.DisplaySize = ImVec2(float(ImImpl::ImImpl_rtarget->getSize().x), float(ImImpl::ImImpl_rtarget->getSize().y));
         }
     }
 }
