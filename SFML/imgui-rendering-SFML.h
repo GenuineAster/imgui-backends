@@ -85,6 +85,8 @@ namespace ImGui
             glPopAttrib();
 
             ImImpl_rtarget->popGLStates();
+
+            ImImpl_rtarget->resetGLStates();
         }
     }
     namespace SFML
