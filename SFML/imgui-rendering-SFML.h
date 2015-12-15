@@ -18,8 +18,6 @@ namespace ImGui
             if (draw_data->CmdListsCount == 0)
                 return;
 
-            ImImpl_rtarget->pushGLStates();
-
             GLint last_texture;
             glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
             glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
@@ -84,7 +82,7 @@ namespace ImGui
             glPopMatrix();
             glPopAttrib();
 
-            ImImpl_rtarget->popGLStates();
+            ImImpl_rtarget->resetGLStates();
         }
     }
     namespace SFML
