@@ -64,7 +64,7 @@ namespace ImGui
                     else
                     {
                         sf::Vector2u win_size = ImImpl_rtarget->getSize();
-                        sf::Texture::bind(ImImpl::ImImpl_fontTex);
+                        sf::Texture::bind((sf::Texture*)pcmd->TextureID);
                         glScissor((int)pcmd->ClipRect.x, (int)(win_size.y - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
                         glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, GL_UNSIGNED_SHORT, idx_buffer);
                     }
@@ -103,7 +103,7 @@ namespace ImGui
             ImImpl::ImImpl_fontTex = new sf::Texture;
             ImImpl::ImImpl_fontTex->create(width, height);
             ImImpl::ImImpl_fontTex->update(pixels);
-            io.Fonts->TexID = (void*)&ImImpl::ImImpl_fontTex;
+            io.Fonts->TexID = (void*)ImImpl::ImImpl_fontTex;
             io.Fonts->ClearInputData();
             io.Fonts->ClearTexData();
         }
